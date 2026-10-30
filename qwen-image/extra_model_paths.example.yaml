@@ -1,0 +1,8 @@
+# Example ComfyUI extra_model_paths.yaml. Replace <models> with your model folder.
+qwen21:
+  base_path: <models>
+  diffusion_models: diffusion_models
+  text_encoders: text_encoders
+  vae: vae
+  upscale_models: upscale_models
+  loras: loras

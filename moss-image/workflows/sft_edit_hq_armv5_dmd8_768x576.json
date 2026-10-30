@@ -1,0 +1,161 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "moss_image_sft_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "lora_name": "armV5.safetensors",
+      "strength_model": 1.0
+    }
+  },
+  "3": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3.5_9b_int8_convrot.safetensors",
+      "type": "moss_image"
+    }
+  },
+  "4": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "reference_768x576.png"
+    }
+  },
+  "5": {
+    "class_type": "TextEncodeMOSSImageEdit",
+    "inputs": {
+      "clip": [
+        "3",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "edit_format": "ai-toolkit",
+      "prompt": "Edit the provided photograph into a clean contemporary 2D anime illustration. Preserve the same person, expression, pose, hair colour, clothing, all visible lettering and logos, framing and background. Do not add objects or change body proportions.",
+      "images.image_0": [
+        "4",
+        0
+      ],
+      "image_strength": 1.0
+    }
+  },
+  "6": {
+    "class_type": "TextEncodeMOSSImageEdit",
+    "inputs": {
+      "clip": [
+        "3",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "edit_format": "ai-toolkit",
+      "prompt": "photographic skin, garbled text, lost logos, changed clothes, extra people, altered pose, blurred face, watermark",
+      "images.image_0": [
+        "4",
+        0
+      ],
+      "image_strength": 1.0
+    }
+  },
+  "7": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": 768,
+      "height": 576,
+      "batch_size": 1
+    }
+  },
+  "8": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "12",
+        0
+      ],
+      "seed": 2026102901,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "positive": [
+        "5",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "7",
+        0
+      ],
+      "denoise": 1.0
+    }
+  },
+  "9": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "8",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    }
+  },
+  "10": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae_small.safetensors"
+    }
+  },
+  "11": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "9",
+        0
+      ],
+      "filename_prefix": "moss_edit_armv5_dmd8_768x576"
+    }
+  },
+  "12": {
+    "class_type": "SkipLayerGuidanceDiTSimple",
+    "inputs": {
+      "model": [
+        "13",
+        0
+      ],
+      "double_layers": "",
+      "single_layers": "22",
+      "start_percent": 0.0,
+      "end_percent": 1.0
+    }
+  },
+  "13": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "2",
+        0
+      ],
+      "lora_name": "moss_sft_8step_dmd_speed.safetensors",
+      "strength_model": 1.0
+    }
+  }
+}

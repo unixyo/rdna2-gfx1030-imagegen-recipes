@@ -1,0 +1,14 @@
+diff --git a/comfy/model_management.py b/comfy/model_management.py
+index 9aa0a9d..62d12d4 100644
+--- a/comfy/model_management.py
++++ b/comfy/model_management.py
+@@ -1217,6 +1217,9 @@ def text_encoder_offload_device():
+         return torch.device("cpu")
+ 
+ def text_encoder_device():
++    # H3 RDNA2 lab only: opt-in encoder GPU scheduling, leaving DiT lowvram policy intact.
++    if os.environ.get("H3_LAB_TE_GPU", "0") == "1" and not args.cpu:
++        return get_torch_device()
+     if args.gpu_only:
+         return get_torch_device()
+     if comfy.memory_management.aimdo_enabled:

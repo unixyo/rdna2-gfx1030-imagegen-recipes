@@ -1,0 +1,150 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "moss_image_sft_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "lora_name": "armV5.safetensors",
+      "strength_model": 1.0
+    }
+  },
+  "3": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3.5_9b_int8_convrot.safetensors",
+      "type": "moss_image"
+    }
+  },
+  "4": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "reference_512x768.png"
+    }
+  },
+  "5": {
+    "class_type": "TextEncodeMOSSImageEdit",
+    "inputs": {
+      "clip": [
+        "3",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "edit_format": "ai-toolkit",
+      "prompt": "Edit the provided storefront photo. Replace ONLY the large white window sign that currently says \"OPEN 7 DAYS\" with the exact white lettering \"CLOSED ON SUNDAYS\". Keep the same shopfront, window glass, reflections, lighting, trees, parked cars, framing, camera angle, and every other detail unchanged. Make the sign crisp, legible, and naturally printed on the same glass.",
+      "images.image_0": [
+        "4",
+        0
+      ],
+      "image_strength": 1.0
+    }
+  },
+  "6": {
+    "class_type": "TextEncodeMOSSImageEdit",
+    "inputs": {
+      "clip": [
+        "3",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "edit_format": "ai-toolkit",
+      "prompt": "misspelled words, unreadable lettering, watermark, blurry, disfigured objects, changed camera angle",
+      "images.image_0": [
+        "4",
+        0
+      ],
+      "image_strength": 1.0
+    }
+  },
+  "7": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": 512,
+      "height": 768,
+      "batch_size": 1
+    }
+  },
+  "8": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "12",
+        0
+      ],
+      "seed": 47,
+      "steps": 50,
+      "cfg": 3.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "positive": [
+        "5",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "7",
+        0
+      ],
+      "denoise": 1.0
+    }
+  },
+  "9": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "8",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    }
+  },
+  "10": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae_small.safetensors"
+    }
+  },
+  "11": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "9",
+        0
+      ],
+      "filename_prefix": "moss_edit_hq_armv5_sundays"
+    }
+  },
+  "12": {
+    "class_type": "SkipLayerGuidanceDiTSimple",
+    "inputs": {
+      "model": [
+        "2",
+        0
+      ],
+      "double_layers": "",
+      "single_layers": "22",
+      "start_percent": 0.0,
+      "end_percent": 1.0
+    }
+  }
+}

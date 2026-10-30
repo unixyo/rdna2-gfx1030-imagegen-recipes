@@ -1,0 +1,180 @@
+{
+  "1": {
+    "class_type": "UnetLoaderGGUFAdvanced",
+    "inputs": {
+      "unet_name": "minimax_h3_fl2va_pruned_fp8_Q4_0.gguf",
+      "dequant_dtype": "bfloat16",
+      "patch_dtype": "default",
+      "patch_on_device": false
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoaderGGUF",
+    "inputs": {
+      "clip_name": "qwen3vl-32B-MiniMax-H3-Q2_K.gguf",
+      "type": "minimax"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "MiniMaxH3ImageToVideo",
+    "inputs": {
+      "prompt": "A full-body character stands in a bright white studio, as in the supplied first-frame image. One continuous five-second shot, locked camera, stable framing. She smiles, turns her head slightly toward the viewer's right, and gives a small hand wave. Keep the face, hair, outfit and background consistent.",
+      "width": 512,
+      "height": 768,
+      "length": 124,
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "first_frame": [
+        "20",
+        0
+      ]
+    }
+  },
+  "5": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 42
+    }
+  },
+  "6": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "21",
+        0
+      ],
+      "conditioning": [
+        "4",
+        0
+      ]
+    }
+  },
+  "7": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    }
+  },
+  "8": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "scheduler": "simple",
+      "steps": 4,
+      "denoise": 1.0,
+      "model": [
+        "21",
+        0
+      ]
+    }
+  },
+  "9": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "5",
+        0
+      ],
+      "guider": [
+        "6",
+        0
+      ],
+      "sampler": [
+        "7",
+        0
+      ],
+      "sigmas": [
+        "8",
+        0
+      ],
+      "latent_image": [
+        "4",
+        1
+      ]
+    }
+  },
+  "10": {
+    "class_type": "VAEDecodeTiled",
+    "inputs": {
+      "tile_size": 128,
+      "overlap": 32,
+      "temporal_size": 8,
+      "temporal_overlap": 4,
+      "samples": [
+        "9",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "11": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 24,
+      "bit_depth": 8,
+      "images": [
+        "10",
+        0
+      ]
+    }
+  },
+  "12": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/h3_i2v_turbo4_lora085_shift6_512x768",
+      "format": "mp4",
+      "video": [
+        "11",
+        0
+      ],
+      "codec": {
+        "codec": "h264",
+        "encoding": {
+          "crf": 14
+        }
+      }
+    }
+  },
+  "14": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors",
+      "strength_model": 0.85,
+      "model": [
+        "1",
+        0
+      ]
+    }
+  },
+  "20": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "first_frame_512x768.png"
+    }
+  },
+  "21": {
+    "class_type": "MiniMaxH3SigmaShift",
+    "inputs": {
+      "model": [
+        "14",
+        0
+      ],
+      "shift_video": 6.0,
+      "shift_audio": 3.0
+    }
+  }
+}

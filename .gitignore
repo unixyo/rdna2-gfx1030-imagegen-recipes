@@ -1,0 +1,42 @@
+# Model weights and large binaries: never commit
+models/
+weights/
+checkpoints/
+*.safetensors
+*.gguf
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.onnx
+*.part
+
+# Generated outputs
+outputs/
+output/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.mp4
+*.latent
+
+# Third-party files fetched by the scripts (AGPL-3.0, not part of this repo)
+qwen-image/custom_nodes/RDNA2-Qwen21-INT8/rocm_int8_kitchen_patch.py
+qwen-image/custom_nodes/RDNA2-Qwen21-INT8/int8_fused_kernel.py
+qwen-image/custom_nodes/RDNA2-Qwen21-INT8/LICENSE-AGPL-3.0
+
+# Logs, environments, caches
+logs/
+*.log
+venv/
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+.cache/
+cache/
+temp/
+tmp/
+ComfyUI/
+.DS_Store

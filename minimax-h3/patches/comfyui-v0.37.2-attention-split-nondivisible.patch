@@ -1,0 +1,15 @@
+diff --git a/comfy/ldm/modules/attention.py b/comfy/ldm/modules/attention.py
+index 4d6cf85..63411aa 100644
+--- a/comfy/ldm/modules/attention.py
++++ b/comfy/ldm/modules/attention.py
+@@ -409,7 +409,9 @@ def attention_split(q, k, v, heads, mask=None, attn_precision=None, skip_reshape
+     cleared_cache = False
+     while True:
+         try:
+-            slice_size = q.shape[1] // steps if (q.shape[1] % steps) == 0 else q.shape[1]
++            # Allow a shorter final slice when token count is not divisible by steps.
++            # Falling back to a full slice here defeats OOM retry and allocates N^2.
++            slice_size = max(1, (q.shape[1] + steps - 1) // steps)
+             for i in range(0, q.shape[1], slice_size):
+                 end = i + slice_size
+                 if upcast:

@@ -1,0 +1,57 @@
+diff --git a/comfy/ldm/lightricks/vae/audio_vae.py b/comfy/ldm/lightricks/vae/audio_vae.py
+index f5b1756..1a6ed98 100644
+--- a/comfy/ldm/lightricks/vae/audio_vae.py
++++ b/comfy/ldm/lightricks/vae/audio_vae.py
+@@ -1,7 +1,10 @@
+ import json
+ from dataclasses import dataclass
+ import torch
+-import torchaudio
++def _get_torchaudio():
++    # Lab-only: delay optional audio extension import; no effect on image paths.
++    import torchaudio
++    return torchaudio
+ 
+ from comfy.ldm.mmaudio.vae.distributions import DiagonalGaussianDistribution
+ from comfy.ldm.lightricks.symmetric_patchifier import AudioPatchifier
+@@ -73,14 +76,14 @@ class AudioPreprocessor:
+     def resample(self, waveform: torch.Tensor, source_rate: int) -> torch.Tensor:
+         if source_rate == self.target_sample_rate:
+             return waveform
+-        return torchaudio.functional.resample(waveform, source_rate, self.target_sample_rate)
++        return _get_torchaudio().functional.resample(waveform, source_rate, self.target_sample_rate)
+ 
+     def waveform_to_mel(
+         self, waveform: torch.Tensor, waveform_sample_rate: int, device
+     ) -> torch.Tensor:
+         waveform = self.resample(waveform, waveform_sample_rate)
+ 
+-        mel_transform = torchaudio.transforms.MelSpectrogram(
++        mel_transform = _get_torchaudio().transforms.MelSpectrogram(
+             sample_rate=self.target_sample_rate,
+             n_fft=self.n_fft,
+             win_length=self.n_fft,
+diff --git a/comfy/text_encoders/gemma4.py b/comfy/text_encoders/gemma4.py
+index 1cb2330..a468f6e 100644
+--- a/comfy/text_encoders/gemma4.py
++++ b/comfy/text_encoders/gemma4.py
+@@ -1,6 +1,9 @@
+ import torch
+ import torch.nn as nn
+-import torchaudio.functional as AF
++def _audio_resample(*args, **kwargs):
++    # Lab-only: optional Gemma4 audio path should not block Qwen image startup.
++    import torchaudio.functional as audio_functions
++    return audio_functions.resample(*args, **kwargs)
+ import torchvision.transforms.functional as TVF
+ import numpy as np
+ from tokenizers import Tokenizer
+@@ -1419,7 +1422,7 @@ class Gemma4_Tokenizer():
+             waveform = waveform.unsqueeze(0)
+         audio = waveform.float()
+         if sample_rate != 16000:
+-            audio = AF.resample(audio, sample_rate, 16000, resampling_method="sinc_interp_kaiser",
++            audio = _audio_resample(audio, sample_rate, 16000, resampling_method="sinc_interp_kaiser",
+                                 lowpass_filter_width=121, rolloff=0.9568384289091556, beta=21.01531462440614)
+         return audio.squeeze(0).contiguous()
+ 
